@@ -1,0 +1,8 @@
+# Copyright (c) 2020 The ZMK Contributors
+# SPDX-License-Identifier: MIT
+
+description: RGB Extended
+
+compatible: "zmk,behavior-rgb-ext"
+
+include: two_param.yaml

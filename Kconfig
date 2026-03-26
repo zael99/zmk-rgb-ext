@@ -1,0 +1,8 @@
+config ZMK_BEHAVIOR_RGB_EXT
+    bool
+    default y
+    depends on DT_HAS_ZMK_BEHAVIOR_RGB_EXT_ENABLED
+
+if ZMK_BEHAVIOR_RGB_EXT
+
+endif #ZMK_BEHAVIOR_RGB_EXT
