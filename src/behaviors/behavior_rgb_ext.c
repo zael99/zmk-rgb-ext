@@ -210,12 +210,12 @@ static int on_keymap_binding_pressed(struct zmk_behavior_binding *binding,
             return zmk_rgb_ext_cycle_effect(1);
         case RGB_EFR_CMD:
             return zmk_rgb_ext_cycle_effect(-1);
-        case RGB_COLOR_RGB_CMD:
+        /*case RGB_COLOR_RGB_CMD:
             return zmk_rgb_ext_set_rgb((struct led_rgb) {
                 .r = (binding->param2 >> 8) & 0xFF,
                 .g = (binding->param2 >> 8) & 0xFF,
                 .b = binding->param2 & 0xFF
-            });
+            });*/
         case RGB_COLOR_HSB_CMD:
             return zmk_rgb_ext_set_hsb((struct zmk_led_hsb) {
                 .h = (binding->param2 >> 16) & 0xFFFF,
