@@ -43,6 +43,13 @@ BUILD_ASSERT(CONFIG_ZMK_RGB_UNDERGLOW_BRT_MIN <= CONFIG_ZMK_RGB_UNDERGLOW_BRT_MA
 #define HUE_MAX 360
 #define SAT_MAX 100
 #define BRT_MAX 100
+
+#define HUE_MAX_MULTIPLIER (1.0f / HUE_MAX)
+#define SAT_MAX_MULTIPLIER (1.0f / SAT_MAX)
+#define BRT_MAX_MULTIPLIER (1.0f / BRT_MAX)
+
+// 1/256
+#define RGB_MULTIPIER 0.0039215686f
 /* ====== Defines ====== */
 
 /* ====== Properties ====== */
@@ -58,32 +65,63 @@ static struct rgb_ext_state state;
 /* ====== Helper Functions ====== */
 static struct zmk_led_hsb hsb_scale_min_max(struct zmk_led_hsb hsb) {
     hsb.b = CONFIG_ZMK_RGB_UNDERGLOW_BRT_MIN +
-            (CONFIG_ZMK_RGB_UNDERGLOW_BRT_MAX - CONFIG_ZMK_RGB_UNDERGLOW_BRT_MIN) * hsb.b / BRT_MAX;
+            (CONFIG_ZMK_RGB_UNDERGLOW_BRT_MAX - CONFIG_ZMK_RGB_UNDERGLOW_BRT_MIN) * hsb.b * BRT_MAX_MULTIPLIER;
     return hsb;
 }
 
 static struct zmk_led_hsb hsb_scale_zero_max(struct zmk_led_hsb hsb) {
-    hsb.b = hsb.b * CONFIG_ZMK_RGB_UNDERGLOW_BRT_MAX / BRT_MAX;
+    hsb.b = hsb.b * CONFIG_ZMK_RGB_UNDERGLOW_BRT_MAX * BRT_MAX_MULTIPLIER;
     return hsb;
 }
 
 static struct zmk_led_hsb rgb_to_hsb(struct led_rgb rgb) {
-    /*struct zmk_led_hsb hsb = {
-        h : h, 
-        s : s, 
-        b : b
-    };*/
+    float r = rgb.r * RGB_MULTIPIER;
+    float g = rgb.g * RGB_MULTIPIER;
+    float b = rgb.b * RGB_MULTIPIER;
 
-    return NULL;
+    float max = (r > g) ? ((r > b) ? r : b) : ((g > b) ? g : b);
+    float min = (r < g) ? ((r < b) ? r : b) : ((g < b) ? g : b);
+    float delta = max - min;
+
+    float h = 0, s = 0, v = max;
+
+    // Calculate Saturation
+    if (max > 0.0f) {
+        s = delta / max;
+    } else {
+        s = 0.0f;
+    }
+
+    // Calculate Hue
+    if (delta > 0.0f) {
+        if (max == r) {
+            h = (g - b) / delta + (g < b ? 6 : 0);
+        } else if (max == g) {
+            h = (b - r) / delta + 2;
+        } else {
+            h = (r - g) / delta + 4;
+        }
+        h *= 60.0f;
+    } else {
+        h = 0.0f;
+    }
+
+    struct zmk_led_hsb hsb = {
+        .h = (uint16_t)h,
+        .s = (uint8_t)(s * SAT_MAX),
+        .b = (uint8_t)(v * BRT_MAX)
+    };
+
+    return hsb;
 }
 
 static struct led_rgb hsb_to_rgb(struct zmk_led_hsb hsb) {
     float r = 0, g = 0, b = 0;
 
     uint8_t i = hsb.h / 60;
-    float v = hsb.b / ((float)BRT_MAX);
-    float s = hsb.s / ((float)SAT_MAX);
-    float f = hsb.h / ((float)HUE_MAX) * 6 - i;
+    float v = hsb.b * BRT_MAX_MULTIPLIER;
+    float s = hsb.s * SAT_MAX_MULTIPLIER;
+    float f = hsb.h * HUE_MAX_MULTIPLIER * 6 - i;
     float p = v * (1 - s);
     float q = v * (1 - f * s);
     float t = v * (1 - (1 - f) * s);
@@ -128,21 +166,29 @@ static struct led_rgb hsb_to_rgb(struct zmk_led_hsb hsb) {
 /* ====== Helper Functions ====== */
 
 /* ====== RGB Effect Functions ====== */
-static void set_rgb_color(led_rgb color) {
+static void set_pixel_rgb(int index, led_rgb color) {
+    if (index > STRIP_NUM_PIXELS) {
+        return;
+    }
+
+    pixels[index] = color;
+}
+
+static void set_solid_rgb(led_rgb color) {
     for (int i = 0; i < STRIP_NUM_PIXELS; i++) {
-        pixels[i] = color;
+        set_pixel_rgb(i, color);
     }
 }
 
 static void zmk_rgb_effect_solid(void) {
-    set_rgb_color(state.color);
+    set_solid_rgb_color(state.color);
 }
 
 static void zmk_rgb_effect_breathe(void) {
     struct zmk_led_hsb hsb = rgb_to_hsb(state.color);
     hsb.b = abs(state.animation_step - 1200) / 12;
 
-    set_rgb_color(hsb_to_rgb(hsb_scale_zero_max(hsb)));
+    set_solid_rgb_color(hsb_to_rgb(hsb_scale_zero_max(hsb)));
 
     state.animation_step += state.animation_speed * 10;
 
@@ -155,7 +201,7 @@ static void zmk_rgb_effect_spectrum(void) {
     struct zmk_led_hsb hsb = rgb_to_hsb(state.color);
     hsb.h = state.animation_step;
 
-    set_rgb_color(hsb_to_rgb(hsb_scale_zero_max(hsb)));
+    set_solid_rgb_color(hsb_to_rgb(hsb_scale_zero_max(hsb)));
 
     state.animation_step += state.animation_speed;
     state.animation_step = state.animation_step % HUE_MAX;
@@ -163,15 +209,17 @@ static void zmk_rgb_effect_spectrum(void) {
 
 static void zmk_rgb_effect_swirl(void) {
     struct zmk_led_hsb hsb = rgb_to_hsb(state.color);
-    hsb.h = (HUE_MAX / STRIP_NUM_PIXELS * i + state.animation_step) % HUE_MAX;
 
-    set_rgb_color(hsb_to_rgb(hsb_scale_min_max(hsb)));
-
+    for (int i = 0; i < STRIP_NUM_PIXELS; i++) {
+        hsb.h = (HUE_MAX / STRIP_NUM_PIXELS * i + state.animation_step) % HUE_MAX;
+        set_pixel_rgb(i, hsb_to_rgb(hsb_scale_min_max(hsb)));
+    }
+    
     state.animation_step += state.animation_speed * 2;
     state.animation_step = state.animation_step % HUE_MAX;
 }
 
-static void zmk_rgb_underglow_tick(struct k_work *work) {
+static void zmk_rgb_ext_tick(struct k_work *work) {
     switch (state.current_effect) {
         case RGB_EFFECT_SOLID:
             zmk_rgb_effect_solid();
@@ -193,19 +241,19 @@ static void zmk_rgb_underglow_tick(struct k_work *work) {
     }
 }
 
-K_WORK_DEFINE(underglow_tick_work, zmk_rgb_underglow_tick);
+K_WORK_DEFINE(rgb_ext_tick_work, zmk_rgb_ext_tick);
 
-static void zmk_rgb_underglow_tick_handler(struct k_timer *timer) {
+static void zmk_rgb_ext_tick_handler(struct k_timer *timer) {
     if (!state.on) {
         return;
     }
 
-    k_work_submit_to_queue(zmk_workqueue_lowprio_work_q(), &underglow_tick_work);
+    k_work_submit_to_queue(zmk_workqueue_lowprio_work_q(), &rgb_ext_tick_work);
 }
 
-K_TIMER_DEFINE(underglow_tick, zmk_rgb_underglow_tick_handler, NULL);
+K_TIMER_DEFINE(rgb_ext_tick, zmk_rgb_ext_tick_handler, NULL);
 
-int zmk_rgb_underglow_select_effect(int effect) {
+int zmk_rgb_ext_select_effect(int effect) {
     if (!led_strip)
         return -ENODEV;
 
@@ -216,18 +264,18 @@ int zmk_rgb_underglow_select_effect(int effect) {
     state.current_effect = effect;
     state.animation_step = 0;
     
-    return zmk_rgb_underglow_save_state();
+    return zmk_rgb_ext_save_state();
 }
 
-int zmk_rgb_underglow_calc_effect(int direction) {
+int zmk_rgb_ext_calc_effect(int direction) {
     return (state.current_effect + RGB_EFFECT_NUMBER + direction) % RGB_EFFECT_NUMBER;
 }
 
-int zmk_rgb_underglow_cycle_effect(int direction) {
-    return zmk_rgb_underglow_select_effect(zmk_rgb_underglow_calc_effect(direction));
+int zmk_rgb_ext_cycle_effect(int direction) {
+    return zmk_rgb_ext_select_effect(zmk_rgb_ext_calc_effect(direction));
 }
 
-int zmk_rgb_underglow_change_spd(int direction) {
+int zmk_rgb_ext_change_spd(int direction) {
     if (!led_strip)
         return -ENODEV;
 
@@ -241,7 +289,7 @@ int zmk_rgb_underglow_change_spd(int direction) {
         state.animation_speed = 5;
     }
 
-    return zmk_rgb_underglow_save_state();
+    return zmk_rgb_ext_save_state();
 }
 /* ====== RGB Effect Functions ====== */
 
@@ -259,7 +307,7 @@ static int rgb_settings_set(const char *name, size_t len, settings_read_cb read_
         rc = read_cb(cb_arg, &state, sizeof(state));
         if (rc >= 0) {
             if (state.on) {
-                k_timer_start(&underglow_tick, K_NO_WAIT, K_MSEC(50));
+                k_timer_start(&rgb_ext_tick, K_NO_WAIT, K_MSEC(50));
             }
 
             return 0;
@@ -273,28 +321,28 @@ static int rgb_settings_set(const char *name, size_t len, settings_read_cb read_
 
 SETTINGS_STATIC_HANDLER_DEFINE(rgb_ext, "rgb/ext", NULL, rgb_settings_set, NULL, NULL);
 
-static void zmk_rgb_underglow_save_state_work(struct k_work *_work) {
+static void zmk_rgb_ext_save_state_work(struct k_work *_work) {
     settings_save_one("rgb/underglow/state", &state, sizeof(state));
 }
 
 static struct k_work_delayable underglow_save_work;
 #endif // IS_ENABLED(CONFIG_SETTINGS)
 
-// Define different versions of zmk_rgb_underglow_save_state depending on if CONFIG_SETTINGS is enabled
+// Define different versions of zmk_rgb_ext_save_state depending on if CONFIG_SETTINGS is enabled
 #if IS_ENABLED(CONFIG_SETTINGS)
-int zmk_rgb_underglow_save_state(void) {
+int zmk_rgb_ext_save_state(void) {
     int ret = k_work_reschedule(&underglow_save_work, K_MSEC(CONFIG_ZMK_SETTINGS_SAVE_DEBOUNCE));
     return MIN(ret, 0);
 }
 #else
-int zmk_rgb_underglow_save_state(void) {
+int zmk_rgb_ext_save_state(void) {
     return 0;
 }
 #endif // IS_ENABLED(CONFIG_SETTINGS)
 /* ====== Behavior Settings ====== */
 
 /* ====== On/Off State ====== */
-int zmk_rgb_underglow_get_state(bool *on_off) {
+int zmk_rgb_ext_get_state(bool *on_off) {
     if (!led_strip)
         return -ENODEV;
 
@@ -302,7 +350,7 @@ int zmk_rgb_underglow_get_state(bool *on_off) {
     return 0;
 }
 
-int zmk_rgb_underglow_on(void) {
+int zmk_rgb_ext_on(void) {
     if (!led_strip)
         return -ENODEV;
 
@@ -317,19 +365,19 @@ int zmk_rgb_underglow_on(void) {
 
     state.on = true;
     state.animation_step = 0;
-    k_timer_start(&underglow_tick, K_NO_WAIT, K_MSEC(50));
+    k_timer_start(&rgb_ext_tick, K_NO_WAIT, K_MSEC(50));
 
-    return zmk_rgb_underglow_save_state();
+    return zmk_rgb_ext_save_state();
 }
 
-static void zmk_rgb_underglow_off_handler(struct k_work *work) {
-    set_rgb_color((struct led_rgb){r : 0, g : 0, b : 0});
+static void zmk_rgb_ext_off_handler(struct k_work *work) {
+    set_solid_rgb_color((struct led_rgb){r : 0, g : 0, b : 0});
     led_strip_update_rgb(led_strip, pixels, STRIP_NUM_PIXELS);
 }
 
-K_WORK_DEFINE(underglow_off_work, zmk_rgb_underglow_off_handler);
+K_WORK_DEFINE(underglow_off_work, zmk_rgb_ext_off_handler);
 
-int zmk_rgb_underglow_off(void) {
+int zmk_rgb_ext_off(void) {
     if (!led_strip)
         return -ENODEV;
 
@@ -345,19 +393,19 @@ int zmk_rgb_underglow_off(void) {
     // Add work to queue
     k_work_submit_to_queue(zmk_workqueue_lowprio_work_q(), &underglow_off_work);
 
-    k_timer_stop(&underglow_tick);
+    k_timer_stop(&rgb_ext_tick);
     state.on = false;
 
-    return zmk_rgb_underglow_save_state();
+    return zmk_rgb_ext_save_state();
 }
 
-int zmk_rgb_underglow_toggle(void) {
-    return state.on ? zmk_rgb_underglow_off() : zmk_rgb_underglow_on();
+int zmk_rgb_ext_toggle(void) {
+    return state.on ? zmk_rgb_ext_off() : zmk_rgb_ext_on();
 }
 /* ====== On/Off State ====== */
 
 /* ====== HSB Functions ====== */
-int zmk_rgb_underglow_set_hsb(struct zmk_led_hsb color) {
+int zmk_rgb_ext_set_hsb(struct zmk_led_hsb color) {
     if (color.h > HUE_MAX || color.s > SAT_MAX || color.b > BRT_MAX) {
         return -ENOTSUP;
     }
@@ -367,13 +415,13 @@ int zmk_rgb_underglow_set_hsb(struct zmk_led_hsb color) {
     return 0;
 }
 
-int zmk_rgb_underglow_set_hsb(struct led_rgb color) {
+int zmk_rgb_ext_set_rgb(struct led_rgb color) {
     state.color = color;
 
     return 0;
 }
 
-struct zmk_led_hsb zmk_rgb_underglow_calc_hue(int direction) {
+struct zmk_led_hsb zmk_rgb_ext_calc_hue(int direction) {
     struct zmk_led_hsb color = state.color;
 
     color.h += HUE_MAX + (direction * CONFIG_ZMK_RGB_UNDERGLOW_HUE_STEP);
@@ -382,7 +430,7 @@ struct zmk_led_hsb zmk_rgb_underglow_calc_hue(int direction) {
     return color;
 }
 
-struct zmk_led_hsb zmk_rgb_underglow_calc_sat(int direction) {
+struct zmk_led_hsb zmk_rgb_ext_calc_sat(int direction) {
     struct zmk_led_hsb color = state.color;
 
     int s = color.s + (direction * CONFIG_ZMK_RGB_UNDERGLOW_SAT_STEP);
@@ -396,7 +444,7 @@ struct zmk_led_hsb zmk_rgb_underglow_calc_sat(int direction) {
     return color;
 }
 
-struct zmk_led_hsb zmk_rgb_underglow_calc_brt(int direction) {
+struct zmk_led_hsb zmk_rgb_ext_calc_brt(int direction) {
     struct zmk_led_hsb color = state.color;
 
     int b = color.b + (direction * CONFIG_ZMK_RGB_UNDERGLOW_BRT_STEP);
@@ -405,31 +453,31 @@ struct zmk_led_hsb zmk_rgb_underglow_calc_brt(int direction) {
     return color;
 }
 
-int zmk_rgb_underglow_change_hue(int direction) {
+int zmk_rgb_ext_change_hue(int direction) {
     if (!led_strip)
         return -ENODEV;
 
-    state.color = zmk_rgb_underglow_calc_hue(direction);
+    state.color = zmk_rgb_ext_calc_hue(direction);
 
-    return zmk_rgb_underglow_save_state();
+    return zmk_rgb_ext_save_state();
 }
 
-int zmk_rgb_underglow_change_sat(int direction) {
+int zmk_rgb_ext_change_sat(int direction) {
     if (!led_strip)
         return -ENODEV;
 
-    state.color = zmk_rgb_underglow_calc_sat(direction);
+    state.color = zmk_rgb_ext_calc_sat(direction);
 
-    return zmk_rgb_underglow_save_state();
+    return zmk_rgb_ext_save_state();
 }
 
-int zmk_rgb_underglow_change_brt(int direction) {
+int zmk_rgb_ext_change_brt(int direction) {
     if (!led_strip)
         return -ENODEV;
 
-    state.color = zmk_rgb_underglow_calc_brt(direction);
+    state.color = zmk_rgb_ext_calc_brt(direction);
 
-    return zmk_rgb_underglow_save_state();
+    return zmk_rgb_ext_save_state();
 }
 /* ====== HSB Functions ====== */
 
@@ -449,13 +497,13 @@ static int rgb_underglow_auto_state(bool target_wake_state) {
 
     if (sleep_state.is_awake) {
         if (sleep_state.rgb_state_before_sleeping) {
-            return zmk_rgb_underglow_on();
+            return zmk_rgb_ext_on();
         } else {
-            return zmk_rgb_underglow_off();
+            return zmk_rgb_ext_off();
         }
     } else {
         sleep_state.rgb_state_before_sleeping = state.on;
-        return zmk_rgb_underglow_off();
+        return zmk_rgb_ext_off();
     }
 }
 
@@ -490,7 +538,7 @@ ZMK_SUBSCRIPTION(rgb_underglow, zmk_usb_conn_state_changed);
 
 
 /* ====== Life-Cycle ====== */
-static int zmk_rgb_underglow_init(void) {
+static int zmk_rgb_ext_init(void) {
     led_strip = DEVICE_DT_GET(STRIP_CHOSEN);
 
 #if IS_ENABLED(CONFIG_ZMK_RGB_UNDERGLOW_EXT_POWER)
@@ -513,7 +561,7 @@ static int zmk_rgb_underglow_init(void) {
     };
 
 #if IS_ENABLED(CONFIG_SETTINGS)
-    k_work_init_delayable(&underglow_save_work, zmk_rgb_underglow_save_state_work);
+    k_work_init_delayable(&underglow_save_work, zmk_rgb_ext_save_state_work);
 #endif
 
 #if IS_ENABLED(CONFIG_ZMK_RGB_UNDERGLOW_AUTO_OFF_USB)
@@ -521,11 +569,11 @@ static int zmk_rgb_underglow_init(void) {
 #endif
 
     if (state.on) {
-        k_timer_start(&underglow_tick, K_NO_WAIT, K_MSEC(50));
+        k_timer_start(&rgb_ext_tick, K_NO_WAIT, K_MSEC(50));
     }
 
     return 0;
 }
 
-SYS_INIT(zmk_rgb_underglow_init, APPLICATION, CONFIG_APPLICATION_INIT_PRIORITY);
+SYS_INIT(zmk_rgb_ext_init, APPLICATION, CONFIG_APPLICATION_INIT_PRIORITY);
 /* ====== Life-Cycle ====== */

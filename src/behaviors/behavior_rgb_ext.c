@@ -109,7 +109,7 @@ static int on_keymap_binding_convert_central_state_dependent_params(struct zmk_b
     switch (binding->param1) {
         case RGB_TOG_CMD: {
             bool state;
-            int err = zmk_rgb_underglow_get_state(&state);
+            int err = zmk_rgb_ext_get_state(&state);
             if (err) {
                 LOG_ERR("Failed to get RGB underglow state (err %d)", err);
                 return err;
@@ -119,42 +119,42 @@ static int on_keymap_binding_convert_central_state_dependent_params(struct zmk_b
             break;
         }
         case RGB_BRI_CMD: {
-            struct zmk_led_hsb color = zmk_rgb_underglow_calc_brt(1);
+            struct zmk_led_hsb color = zmk_rgb_ext_calc_brt(1);
 
             binding->param1 = RGB_COLOR_HSB_CMD;
             binding->param2 = RGB_COLOR_HSB_VAL(color.h, color.s, color.b);
             break;
         }
         case RGB_BRD_CMD: {
-            struct zmk_led_hsb color = zmk_rgb_underglow_calc_brt(-1);
+            struct zmk_led_hsb color = zmk_rgb_ext_calc_brt(-1);
 
             binding->param1 = RGB_COLOR_HSB_CMD;
             binding->param2 = RGB_COLOR_HSB_VAL(color.h, color.s, color.b);
             break;
         }
         case RGB_HUI_CMD: {
-            struct zmk_led_hsb color = zmk_rgb_underglow_calc_hue(1);
+            struct zmk_led_hsb color = zmk_rgb_ext_calc_hue(1);
 
             binding->param1 = RGB_COLOR_HSB_CMD;
             binding->param2 = RGB_COLOR_HSB_VAL(color.h, color.s, color.b);
             break;
         }
         case RGB_HUD_CMD: {
-            struct zmk_led_hsb color = zmk_rgb_underglow_calc_hue(-1);
+            struct zmk_led_hsb color = zmk_rgb_ext_calc_hue(-1);
 
             binding->param1 = RGB_COLOR_HSB_CMD;
             binding->param2 = RGB_COLOR_HSB_VAL(color.h, color.s, color.b);
             break;
         }
         case RGB_SAI_CMD: {
-            struct zmk_led_hsb color = zmk_rgb_underglow_calc_sat(1);
+            struct zmk_led_hsb color = zmk_rgb_ext_calc_sat(1);
 
             binding->param1 = RGB_COLOR_HSB_CMD;
             binding->param2 = RGB_COLOR_HSB_VAL(color.h, color.s, color.b);
             break;
         }
         case RGB_SAD_CMD: {
-            struct zmk_led_hsb color = zmk_rgb_underglow_calc_sat(-1);
+            struct zmk_led_hsb color = zmk_rgb_ext_calc_sat(-1);
 
             binding->param1 = RGB_COLOR_HSB_CMD;
             binding->param2 = RGB_COLOR_HSB_VAL(color.h, color.s, color.b);
@@ -162,12 +162,12 @@ static int on_keymap_binding_convert_central_state_dependent_params(struct zmk_b
         }
         case RGB_EFR_CMD: {
             binding->param1 = RGB_EFS_CMD;
-            binding->param2 = zmk_rgb_underglow_calc_effect(-1);
+            binding->param2 = zmk_rgb_ext_calc_effect(-1);
             break;
         }
         case RGB_EFF_CMD: {
             binding->param1 = RGB_EFS_CMD;
-            binding->param2 = zmk_rgb_underglow_calc_effect(1);
+            binding->param2 = zmk_rgb_ext_calc_effect(1);
             break;
         }
         default:
@@ -183,41 +183,41 @@ static int on_keymap_binding_pressed(struct zmk_behavior_binding *binding,
                                      struct zmk_behavior_binding_event event) {
     switch (binding->param1) {
         case RGB_TOG_CMD:
-            return zmk_rgb_underglow_toggle();
+            return zmk_rgb_ext_toggle();
         case RGB_ON_CMD:
-            return zmk_rgb_underglow_on();
+            return zmk_rgb_ext_on();
         case RGB_OFF_CMD:
-            return zmk_rgb_underglow_off();
+            return zmk_rgb_ext_off();
         case RGB_HUI_CMD:
-            return zmk_rgb_underglow_change_hue(1);
+            return zmk_rgb_ext_change_hue(1);
         case RGB_HUD_CMD:
-            return zmk_rgb_underglow_change_hue(-1);
+            return zmk_rgb_ext_change_hue(-1);
         case RGB_SAI_CMD:
-            return zmk_rgb_underglow_change_sat(1);
+            return zmk_rgb_ext_change_sat(1);
         case RGB_SAD_CMD:
-            return zmk_rgb_underglow_change_sat(-1);
+            return zmk_rgb_ext_change_sat(-1);
         case RGB_BRI_CMD:
-            return zmk_rgb_underglow_change_brt(1);
+            return zmk_rgb_ext_change_brt(1);
         case RGB_BRD_CMD:
-            return zmk_rgb_underglow_change_brt(-1);
+            return zmk_rgb_ext_change_brt(-1);
         case RGB_SPI_CMD:
-            return zmk_rgb_underglow_change_spd(1);
+            return zmk_rgb_ext_change_spd(1);
         case RGB_SPD_CMD:
-            return zmk_rgb_underglow_change_spd(-1);
+            return zmk_rgb_ext_change_spd(-1);
         case RGB_EFS_CMD:
-            return zmk_rgb_underglow_select_effect(binding->param2);
+            return zmk_rgb_ext_select_effect(binding->param2);
         case RGB_EFF_CMD:
-            return zmk_rgb_underglow_cycle_effect(1);
+            return zmk_rgb_ext_cycle_effect(1);
         case RGB_EFR_CMD:
-            return zmk_rgb_underglow_cycle_effect(-1);
+            return zmk_rgb_ext_cycle_effect(-1);
         case RGB_COLOR_RGB_CMD:
-            return zmk_rgb_underglow_set_rgb((struct led_rgb) {
+            return zmk_rgb_ext_set_rgb((struct led_rgb) {
                 .r = (binding->param2 >> 8) & 0xFF,
                 .g = (binding->param2 >> 8) & 0xFF,
                 .b = binding->param2 & 0xFF
             });
         case RGB_COLOR_HSB_CMD:
-            return zmk_rgb_underglow_set_hsb((struct zmk_led_hsb) {
+            return zmk_rgb_ext_set_hsb((struct zmk_led_hsb) {
                 .h = (binding->param2 >> 16) & 0xFFFF,
                 .s = (binding->param2 >> 8) & 0xFF,
                 .b = binding->param2 & 0xFF
@@ -233,8 +233,7 @@ static int on_keymap_binding_released(struct zmk_behavior_binding *binding,
 }
 
 static const struct behavior_driver_api behavior_rgb_ext_driver_api = {
-    .binding_convert_central_state_dependent_params =
-        on_keymap_binding_convert_central_state_dependent_params,
+    .binding_convert_central_state_dependent_params = on_keymap_binding_convert_central_state_dependent_params,
     .binding_pressed = on_keymap_binding_pressed,
     .binding_released = on_keymap_binding_released,
     .locality = BEHAVIOR_LOCALITY_GLOBAL,
@@ -243,7 +242,6 @@ static const struct behavior_driver_api behavior_rgb_ext_driver_api = {
 #endif
 };
 
-BEHAVIOR_DT_INST_DEFINE(0, NULL, NULL, NULL, NULL, POST_KERNEL, CONFIG_KERNEL_INIT_PRIORITY_DEFAULT,
-                        &behavior_rgb_ext_driver_api);
+BEHAVIOR_DT_INST_DEFINE(0, NULL, NULL, NULL, NULL, POST_KERNEL, CONFIG_KERNEL_INIT_PRIORITY_DEFAULT, &behavior_rgb_ext_driver_api);
 
 #endif /* DT_HAS_COMPAT_STATUS_OKAY(DT_DRV_COMPAT) */
