@@ -4,6 +4,7 @@
 name: zmk-behavior-rgb-ext
 build:
   cmake: .
+  kconfig: ./Kconfig
   settings:
     board_root: .
     dts_root: .
