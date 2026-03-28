@@ -9,40 +9,40 @@ if ZMK_RGB_EXT
 config SPI
     default y
 
-config ZMK_RGB_UNDERGLOW_EXT_POWER
+config ZMK_RGB_EXT_EXT_POWER
     default y
 
-config ZMK_RGB_UNDERGLOW_BRT_MIN
+config ZMK_RGB_EXT_BRT_MIN
     default 0
 
-config ZMK_RGB_UNDERGLOW_BRT_MAX
+config ZMK_RGB_EXT_BRT_MAX
     default 100
 
-config ZMK_RGB_UNDERGLOW_HUE_STEP
+config ZMK_RGB_EXT_HUE_STEP
     default 10
 
-config ZMK_RGB_UNDERGLOW_SAT_STEP
+config ZMK_RGB_EXT_SAT_STEP
     default 10
 
-config ZMK_RGB_UNDERGLOW_BRT_STEP
+config ZMK_RGB_EXT_BRT_STEP
     default 10
 
-config ZMK_RGB_UNDERGLOW_HUE_START
+config ZMK_RGB_EXT_HUE_START
     default 0
 
-config ZMK_RGB_UNDERGLOW_SAT_START
+config ZMK_RGB_EXT_SAT_START
     default 100
 
-config ZMK_RGB_UNDERGLOW_BRT_START
-    default ZMK_RGB_UNDERGLOW_BRT_MAX
+config ZMK_RGB_EXT_BRT_START
+    default ZMK_RGB_EXT_BRT_MAX
 
-config ZMK_RGB_UNDERGLOW_SPD_START
+config ZMK_RGB_EXT_SPD_START
     default 3
 
-config ZMK_RGB_UNDERGLOW_EFF_START
+config ZMK_RGB_EXT_EFF_START
     default 0
 
-config ZMK_RGB_UNDERGLOW_ON_START
+config ZMK_RGB_EXT_ON_START
     default y
 
 endif #ZMK_RGB_EXT

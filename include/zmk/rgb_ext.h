@@ -30,7 +30,7 @@ struct rgb_ext_state {
     bool on;
 };
 
-#if IS_ENABLED(CONFIG_ZMK_RGB_UNDERGLOW_AUTO_OFF_IDLE) || IS_ENABLED(CONFIG_ZMK_RGB_UNDERGLOW_AUTO_OFF_USB)
+#if IS_ENABLED(CONFIG_ZMK_RGB_EXT_AUTO_OFF_IDLE) || IS_ENABLED(CONFIG_ZMK_RGB_EXT_AUTO_OFF_USB)
 struct rgb_ext_sleep_state {
     bool is_awake;
     bool rgb_state_before_sleeping;
