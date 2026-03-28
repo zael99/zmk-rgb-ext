@@ -29,8 +29,8 @@
 LOG_MODULE_DECLARE(zmk, CONFIG_ZMK_LOG_LEVEL);
 
 /* ====== Build Checks ====== */
-#if !DT_HAS_CHOSEN(zmk_underglow)
-    #error "A zmk,underglow chosen node must be declared"
+#if !DT_HAS_CHOSEN(zmk_rgb)
+    #error "A zmk,rgb chosen node must be declared"
 #endif
 
 BUILD_ASSERT(CONFIG_ZMK_RGB_UNDERGLOW_BRT_MIN <= CONFIG_ZMK_RGB_UNDERGLOW_BRT_MAX, "ERROR: RGB underglow maximum brightness is less than minimum brightness");
