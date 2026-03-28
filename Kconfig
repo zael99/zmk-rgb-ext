@@ -5,44 +5,57 @@ config ZMK_RGB_EXT
 
 if ZMK_RGB_EXT
 
-# This default value cuts down on tons of excess .conf files, if you're using GPIO, manually disable this
+# Types must be explicitly declared for each symbol
 config SPI
+    bool
     default y
 
 config ZMK_RGB_EXT_EXT_POWER
+    bool
     default y
 
 config ZMK_RGB_EXT_BRT_MIN
+    int
     default 0
 
 config ZMK_RGB_EXT_BRT_MAX
+    int
     default 100
 
 config ZMK_RGB_EXT_HUE_STEP
+    int
     default 10
 
 config ZMK_RGB_EXT_SAT_STEP
+    int
     default 10
 
 config ZMK_RGB_EXT_BRT_STEP
+    int
     default 10
 
 config ZMK_RGB_EXT_HUE_START
+    int
     default 0
 
 config ZMK_RGB_EXT_SAT_START
+    int
     default 100
 
 config ZMK_RGB_EXT_BRT_START
-    default ZMK_RGB_EXT_BRT_MAX
+    int
+    default 100
 
 config ZMK_RGB_EXT_SPD_START
+    int
     default 3
 
 config ZMK_RGB_EXT_EFF_START
+    int
     default 0
 
 config ZMK_RGB_EXT_ON_START
+    bool
     default y
 
 endif #ZMK_RGB_EXT
