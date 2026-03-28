@@ -5,4 +5,44 @@ config ZMK_BEHAVIOR_RGB_EXT
 
 if ZMK_BEHAVIOR_RGB_EXT
 
+# This default value cuts down on tons of excess .conf files, if you're using GPIO, manually disable this
+config SPI
+    default y
+
+config ZMK_RGB_UNDERGLOW_EXT_POWER
+    default y
+
+config ZMK_RGB_UNDERGLOW_BRT_MIN
+    default 0
+
+config ZMK_RGB_UNDERGLOW_BRT_MAX
+    default 100
+
+config ZMK_RGB_UNDERGLOW_HUE_STEP
+    default 10
+
+config ZMK_RGB_UNDERGLOW_SAT_STEP
+    default 10
+
+config ZMK_RGB_UNDERGLOW_BRT_STEP
+    default 10
+
+config ZMK_RGB_UNDERGLOW_HUE_START
+    default 0
+
+config ZMK_RGB_UNDERGLOW_SAT_START
+    default 100
+
+config ZMK_RGB_UNDERGLOW_BRT_START
+    default ZMK_RGB_UNDERGLOW_BRT_MAX
+
+config ZMK_RGB_UNDERGLOW_SPD_START
+    default 3
+
+config ZMK_RGB_UNDERGLOW_EFF_START
+    default 0
+
+config ZMK_RGB_UNDERGLOW_ON_START
+    default y
+
 endif #ZMK_BEHAVIOR_RGB_EXT
