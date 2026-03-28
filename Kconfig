@@ -1,9 +1,9 @@
-config ZMK_BEHAVIOR_RGB_EXT
+config ZMK_RGB_EXT
     bool
     default y
-    depends on DT_HAS_ZMK_BEHAVIOR_RGB_EXT_ENABLED
+    depends on DT_HAS_ZMK_RGB_EXT_ENABLED
 
-if ZMK_BEHAVIOR_RGB_EXT
+if ZMK_RGB_EXT
 
 # This default value cuts down on tons of excess .conf files, if you're using GPIO, manually disable this
 config SPI
@@ -44,5 +44,17 @@ config ZMK_RGB_UNDERGLOW_EFF_START
 
 config ZMK_RGB_UNDERGLOW_ON_START
     default y
+
+endif #ZMK_RGB_EXT
+
+
+
+
+config ZMK_BEHAVIOR_RGB_EXT
+    bool
+    default y
+    depends on DT_HAS_ZMK_BEHAVIOR_RGB_EXT_ENABLED
+
+if ZMK_BEHAVIOR_RGB_EXT
 
 endif #ZMK_BEHAVIOR_RGB_EXT
