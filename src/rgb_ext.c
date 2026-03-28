@@ -37,7 +37,7 @@ BUILD_ASSERT(CONFIG_ZMK_RGB_UNDERGLOW_BRT_MIN <= CONFIG_ZMK_RGB_UNDERGLOW_BRT_MA
 /* ====== Build Checks ====== */
 
 /* ====== Defines ====== */
-#define STRIP_CHOSEN DT_CHOSEN(zmk_underglow)
+#define STRIP_CHOSEN DT_CHOSEN(zmk_rgb)
 #define STRIP_NUM_PIXELS DT_PROP(STRIP_CHOSEN, chain_length)
 
 #define HUE_MAX 360
