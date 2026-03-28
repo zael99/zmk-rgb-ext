@@ -58,6 +58,14 @@ config ZMK_RGB_EXT_ON_START
     bool "Starting state for RGB extension"
     default y
 
+config ZMK_RGB_EXT_AUTO_OFF_IDLE
+    bool "Auto-off idle for RGB extension"
+    default y
+
+config ZMK_RGB_EXT_AUTO_OFF_USB
+    bool "Auto-off USB suspend for RGB extension"
+    default y
+
 endif #ZMK_RGB_EXT
 
 
