@@ -1,5 +1,5 @@
 config ZMK_RGB_EXT
-    bool
+    bool "Enable ZMK RGB extension"
     default y
     depends on DT_HAS_ZMK_RGB_EXT_ENABLED
 
@@ -7,55 +7,55 @@ if ZMK_RGB_EXT
 
 # Types must be explicitly declared for each symbol
 config SPI
-    bool
+    bool "Use SPI for RGB extension communication"
     default y
 
 config ZMK_RGB_EXT_EXT_POWER
-    bool
+    bool "Enable external power for RGB extension"
     default y
 
 config ZMK_RGB_EXT_BRT_MIN
-    int
+    int "Minimum brightness for RGB extension"
     default 0
 
 config ZMK_RGB_EXT_BRT_MAX
-    int
+    int "Maximum brightness for RGB extension"
     default 100
 
 config ZMK_RGB_EXT_HUE_STEP
-    int
+    int "Hue step for RGB extension"
     default 10
 
 config ZMK_RGB_EXT_SAT_STEP
-    int
+    int "Saturation step for RGB extension"
     default 10
 
 config ZMK_RGB_EXT_BRT_STEP
-    int
+    int "Brightness step for RGB extension"
     default 10
 
 config ZMK_RGB_EXT_HUE_START
-    int
+    int "Starting hue for RGB extension"
     default 0
 
 config ZMK_RGB_EXT_SAT_START
-    int
+    int "Starting saturation for RGB extension"
     default 100
 
 config ZMK_RGB_EXT_BRT_START
-    int
+    int "Starting brightness for RGB extension"
     default 100
 
 config ZMK_RGB_EXT_SPD_START
-    int
+    int "Starting speed for RGB extension"
     default 3
 
 config ZMK_RGB_EXT_EFF_START
-    int
+    int "Starting effect for RGB extension"
     default 0
 
 config ZMK_RGB_EXT_ON_START
-    bool
+    bool "Starting state for RGB extension"
     default y
 
 endif #ZMK_RGB_EXT
