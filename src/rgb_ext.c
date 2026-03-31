@@ -404,6 +404,14 @@ int zmk_rgb_ext_toggle(void) {
 }
 /* ====== On/Off State ====== */
 
+/* ====== RGB Functions ====== */
+int zmk_rgb_ext_set_rgb(struct led_rgb color) {
+    state.color = color;
+
+    return 0;
+}
+/* ====== RGB Functions ====== */
+
 /* ====== HSB Functions ====== */
 int zmk_rgb_ext_set_hsb(struct zmk_led_hsb color) {
     if (color.h > HUE_MAX || color.s > SAT_MAX || color.b > BRT_MAX) {
@@ -412,12 +420,6 @@ int zmk_rgb_ext_set_hsb(struct zmk_led_hsb color) {
 
     struct led_rgb rgb = hsb_to_rgb(color);
     zmk_rgb_ext_set_rgb(rgb);
-
-    return 0;
-}
-
-int zmk_rgb_ext_set_rgb(struct led_rgb color) {
-    state.color = color;
 
     return 0;
 }
