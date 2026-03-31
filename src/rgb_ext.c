@@ -554,8 +554,8 @@ static int zmk_rgb_ext_init(void) {
 
     state = (struct rgb_ext_state){
         color : {
-            h : CONFIG_ZMK_RGB_EXT_HUE_START,
-            s : CONFIG_ZMK_RGB_EXT_SAT_START,
+            r : CONFIG_ZMK_RGB_EXT_HUE_START,
+            g : CONFIG_ZMK_RGB_EXT_SAT_START,
             b : CONFIG_ZMK_RGB_EXT_BRT_START,
         },
         animation_speed : CONFIG_ZMK_RGB_EXT_SPD_START,
@@ -563,6 +563,15 @@ static int zmk_rgb_ext_init(void) {
         animation_step : 0,
         on : IS_ENABLED(CONFIG_ZMK_RGB_EXT_ON_START)
     };
+
+#ifdef CONFIG_ZMK_RGB_EXT_HUE_START && CONFIG_ZMK_RGB_EXT_SAT_START && CONFIG_ZMK_RGB_EXT_BRT_START
+    struct zmk_led_hsb hsb = {
+        h : CONFIG_ZMK_RGB_EXT_HUE_START,
+        s : CONFIG_ZMK_RGB_EXT_SAT_START,
+        b : CONFIG_ZMK_RGB_EXT_BRT_START
+    };
+    zmk_rgb_ext_set_hsb(hsb);
+#endif
 
 #if IS_ENABLED(CONFIG_SETTINGS)
     k_work_init_delayable(&underglow_save_work, zmk_rgb_ext_save_state_work);
