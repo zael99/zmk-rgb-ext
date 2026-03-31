@@ -29,8 +29,11 @@
 LOG_MODULE_DECLARE(zmk, CONFIG_ZMK_LOG_LEVEL);
 
 /* ====== Build Checks ====== */
-#if DT_HAS_CHOSEN(zmk_rgb_ext)
-  #define CHOSEN_RGB_EXT DT_CHOSEN(zmk_rgb_ext)
+//#if DT_HAS_CHOSEN(zmk_rgb_ext)
+//  #define CHOSEN_RGB_EXT DT_CHOSEN(zmk_rgb_ext)
+//  #define STRIP_CHOSEN DT_PROP(CHOSEN_RGB_EXT, rgb_dev)
+#if DT_HAS_CHOSEN(zmk_underglow)
+  #define STRIP_CHOSEN DT_CHOSEN(zmk_underglow)
 #else
   #error "... need chosen node"
 #endif
@@ -39,7 +42,6 @@ BUILD_ASSERT(CONFIG_ZMK_RGB_EXT_BRT_MIN <= CONFIG_ZMK_RGB_EXT_BRT_MAX, "ERROR: R
 /* ====== Build Checks ====== */
 
 /* ====== Defines ====== */
-#define STRIP_CHOSEN DT_PROP(CHOSEN_RGB_EXT, rgb_dev)
 #define STRIP_NUM_PIXELS DT_PROP(STRIP_CHOSEN, chain_length)
 
 #define HUE_MAX 360
