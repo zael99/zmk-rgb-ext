@@ -168,7 +168,7 @@ static struct led_rgb hsb_to_rgb(struct zmk_led_hsb hsb) {
 /* ====== Helper Functions ====== */
 
 /* ====== RGB Effect Functions ====== */
-static void set_pixel_rgb(int index, struct led_rgb color) {
+static void set_pixel_rgb_color(int index, struct led_rgb color) {
     if (index > STRIP_NUM_PIXELS) {
         return;
     }
@@ -176,9 +176,9 @@ static void set_pixel_rgb(int index, struct led_rgb color) {
     pixels[index] = color;
 }
 
-static void set_solid_rgb(struct led_rgb color) {
+static void set_solid_rgb_color(struct led_rgb color) {
     for (int i = 0; i < STRIP_NUM_PIXELS; i++) {
-        set_pixel_rgb(i, color);
+        set_pixel_rgb_color(i, color);
     }
 }
 
@@ -214,7 +214,7 @@ static void zmk_rgb_effect_swirl(void) {
 
     for (int i = 0; i < STRIP_NUM_PIXELS; i++) {
         hsb.h = (HUE_MAX / STRIP_NUM_PIXELS * i + state.animation_step) % HUE_MAX;
-        set_pixel_rgb(i, hsb_to_rgb(hsb_scale_min_max(hsb)));
+        set_pixel_rgb_color(i, hsb_to_rgb(hsb_scale_min_max(hsb)));
     }
     
     state.animation_step += state.animation_speed * 2;
