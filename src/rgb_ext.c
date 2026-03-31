@@ -588,6 +588,6 @@ static int zmk_rgb_ext_init(void) {
     return 0;
 }
 
-//SYS_INIT(zmk_rgb_ext_init, APPLICATION, CONFIG_APPLICATION_INIT_PRIORITY);
-SYS_INIT(zmk_rgb_ext_init, APPLICATION, 32);
+SYS_INIT(zmk_rgb_ext_init, APPLICATION, CONFIG_APPLICATION_INIT_PRIORITY);
+//SYS_INIT(zmk_rgb_ext_init, APPLICATION, 32);
 /* ====== Life-Cycle ====== */
