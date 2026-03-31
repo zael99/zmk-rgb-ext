@@ -425,7 +425,7 @@ int zmk_rgb_ext_set_hsb(struct zmk_led_hsb color) {
 }
 
 struct zmk_led_hsb zmk_rgb_ext_calc_hue(int direction) {
-    struct zmk_led_hsb color = state.color;
+    struct zmk_led_hsb color = rgb_to_hsb(state.color);
 
     color.h += HUE_MAX + (direction * CONFIG_ZMK_RGB_EXT_HUE_STEP);
     color.h %= HUE_MAX;
@@ -434,7 +434,7 @@ struct zmk_led_hsb zmk_rgb_ext_calc_hue(int direction) {
 }
 
 struct zmk_led_hsb zmk_rgb_ext_calc_sat(int direction) {
-    struct zmk_led_hsb color = state.color;
+    struct zmk_led_hsb color = rgb_to_hsb(state.color);
 
     int s = color.s + (direction * CONFIG_ZMK_RGB_EXT_SAT_STEP);
     if (s < 0) {
@@ -448,7 +448,7 @@ struct zmk_led_hsb zmk_rgb_ext_calc_sat(int direction) {
 }
 
 struct zmk_led_hsb zmk_rgb_ext_calc_brt(int direction) {
-    struct zmk_led_hsb color = state.color;
+    struct zmk_led_hsb color = rgb_to_hsb(state.color);
 
     int b = color.b + (direction * CONFIG_ZMK_RGB_EXT_BRT_STEP);
     color.b = CLAMP(b, 0, BRT_MAX);
@@ -459,8 +459,9 @@ struct zmk_led_hsb zmk_rgb_ext_calc_brt(int direction) {
 int zmk_rgb_ext_change_hue(int direction) {
     if (!led_strip)
         return -ENODEV;
-
-    state.color = zmk_rgb_ext_calc_hue(direction);
+    
+    
+    zmk_rgb_ext_set_hsb(zmk_rgb_ext_calc_hue(direction));
 
     return zmk_rgb_ext_save_state();
 }
@@ -469,7 +470,7 @@ int zmk_rgb_ext_change_sat(int direction) {
     if (!led_strip)
         return -ENODEV;
 
-    state.color = zmk_rgb_ext_calc_sat(direction);
+    zmk_rgb_ext_set_hsb(zmk_rgb_ext_calc_sat(direction));
 
     return zmk_rgb_ext_save_state();
 }
@@ -478,7 +479,7 @@ int zmk_rgb_ext_change_brt(int direction) {
     if (!led_strip)
         return -ENODEV;
 
-    state.color = zmk_rgb_ext_calc_brt(direction);
+    zmk_rgb_ext_set_hsb(zmk_rgb_ext_calc_brt(direction));
 
     return zmk_rgb_ext_save_state();
 }
