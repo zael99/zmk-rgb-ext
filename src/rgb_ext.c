@@ -331,16 +331,14 @@ static struct k_work_delayable underglow_save_work;
 #endif // IS_ENABLED(CONFIG_SETTINGS)
 
 // Define different versions of zmk_rgb_ext_save_state depending on if CONFIG_SETTINGS is enabled
-#if IS_ENABLED(CONFIG_SETTINGS)
 int zmk_rgb_ext_save_state(void) {
     int ret = k_work_reschedule(&underglow_save_work, K_MSEC(CONFIG_ZMK_SETTINGS_SAVE_DEBOUNCE));
+#if IS_ENABLED(CONFIG_SETTINGS)
     return MIN(ret, 0);
-}
 #else
-int zmk_rgb_ext_save_state(void) {
     return 0;
-}
 #endif // IS_ENABLED(CONFIG_SETTINGS)
+}
 /* ====== Behavior Settings ====== */
 
 /* ====== On/Off State ====== */
@@ -412,7 +410,8 @@ int zmk_rgb_ext_set_hsb(struct zmk_led_hsb color) {
         return -ENOTSUP;
     }
 
-    state.color = color;
+    struct led_rgb rgb = hsb_to_rgb(color);
+    zmk_rgb_ext_set_rgb(rgb);
 
     return 0;
 }
