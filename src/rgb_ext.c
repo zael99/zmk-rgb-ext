@@ -37,7 +37,7 @@ LOG_MODULE_DECLARE(zmk, CONFIG_ZMK_LOG_LEVEL);
   #error "... need chosen node"
 #endif
 
-//BUILD_ASSERT(CONFIG_ZMK_RGB_EXT_BRT_MIN <= CONFIG_ZMK_RGB_EXT_BRT_MAX, "ERROR: RGB underglow maximum brightness is less than minimum brightness");
+BUILD_ASSERT(CONFIG_ZMK_RGB_EXT_BRT_MIN <= CONFIG_ZMK_RGB_EXT_BRT_MAX, "ERROR: RGB underglow maximum brightness is less than minimum brightness");
 /* ====== Build Checks ====== */
 
 /* ====== Defines ====== */
