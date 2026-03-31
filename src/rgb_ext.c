@@ -168,7 +168,7 @@ static struct led_rgb hsb_to_rgb(struct zmk_led_hsb hsb) {
 /* ====== Helper Functions ====== */
 
 /* ====== RGB Effect Functions ====== */
-static void set_pixel_rgb(int index, led_rgb color) {
+static void set_pixel_rgb(int index, struct led_rgb color) {
     if (index > STRIP_NUM_PIXELS) {
         return;
     }
@@ -176,7 +176,7 @@ static void set_pixel_rgb(int index, led_rgb color) {
     pixels[index] = color;
 }
 
-static void set_solid_rgb(led_rgb color) {
+static void set_solid_rgb(struct led_rgb color) {
     for (int i = 0; i < STRIP_NUM_PIXELS; i++) {
         set_pixel_rgb(i, color);
     }
