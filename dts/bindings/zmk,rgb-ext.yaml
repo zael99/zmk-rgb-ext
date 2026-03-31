@@ -1,7 +1,7 @@
-description: Custom RGB Extension Module
-compatible: "zmk,rgb-ext"
-properties:
-  rgb-dev:
-    type: phandle
-    required: true
-    description: Phandle to the underlying led-strip device
+#description: Custom RGB Extension Module
+#compatible: "zmk,rgb-ext"
+#properties:
+#  rgb-dev:
+#    type: phandle
+#    required: true
+#    description: Phandle to the underlying led-strip device
