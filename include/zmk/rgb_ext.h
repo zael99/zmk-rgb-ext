@@ -37,19 +37,35 @@ struct rgb_ext_sleep_state {
 };
 #endif
 
-int zmk_rgb_ext_toggle(void);
-int zmk_rgb_ext_get_state(bool *state);
-int zmk_rgb_ext_on(void);
-int zmk_rgb_ext_off(void);
+/* ====== RGB Effect Functions ====== */
 int zmk_rgb_ext_cycle_effect(int direction);
 int zmk_rgb_ext_calc_effect(int direction);
 int zmk_rgb_ext_select_effect(int effect);
-struct zmk_led_hsb zmk_rgb_ext_calc_hue(int direction);
-struct zmk_led_hsb zmk_rgb_ext_calc_sat(int direction);
-struct zmk_led_hsb zmk_rgb_ext_calc_brt(int direction);
+int zmk_rgb_ext_change_spd(int direction);
+/* ====== RGB Effect Functions ====== */
+
+
+/* ====== HSB Functions ====== */
+int zmk_rgb_ext_set_hsb(struct zmk_led_hsb color);
+
 int zmk_rgb_ext_change_hue(int direction);
 int zmk_rgb_ext_change_sat(int direction);
 int zmk_rgb_ext_change_brt(int direction);
-int zmk_rgb_ext_change_spd(int direction);
+
+struct zmk_led_hsb zmk_rgb_ext_calc_hue(int direction);
+struct zmk_led_hsb zmk_rgb_ext_calc_sat(int direction);
+struct zmk_led_hsb zmk_rgb_ext_calc_brt(int direction);
+/* ====== HSB Functions ====== */
+
+/* ====== Behavior Settings ====== */
+int zmk_rgb_ext_save_state(void);
+/* ====== Behavior Settings ====== */
+
+/* ====== On/Off State ====== */
+int zmk_rgb_ext_get_state(bool *state);
+int zmk_rgb_ext_on(void);
+int zmk_rgb_ext_off(void);
+int zmk_rgb_ext_toggle(void);
+/* ====== On/Off State ====== */
+
 int zmk_rgb_ext_set_rgb(struct led_rgb color);
-int zmk_rgb_ext_set_hsb(struct zmk_led_hsb color);
