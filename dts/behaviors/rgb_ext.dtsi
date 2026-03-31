@@ -7,7 +7,7 @@
 / {
     behaviors {
         // Behavior can be invoked on peripherals, so name must be <= 8 characters.
-        rgb_ext: rgb_ext {
+        rgb: rgb {
             compatible = "zmk,behavior-rgb-ext";
             #binding-cells = <2>;
             display-name = "RGB Extended";
